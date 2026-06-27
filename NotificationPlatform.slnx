@@ -1,0 +1,25 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/NotificationPlatform.Api/NotificationPlatform.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/BuildingBlocks.Application/BuildingBlocks.Application.csproj" />
+    <Project Path="src/BuildingBlocks/BuildingBlocks.Domain/BuildingBlocks.Domain.csproj" />
+    <Project Path="src/BuildingBlocks/BuildingBlocks.Infrastructure/BuildingBlocks.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Tenants/">
+    <Project Path="src/Modules/Tenants/Tenants.Api/Tenants.Api.csproj" />
+    <Project Path="src/Modules/Tenants/Tenants.Application/Tenants.Application.csproj" />
+    <Project Path="src/Modules/Tenants/Tenants.Domain/Tenants.Domain.csproj" />
+    <Project Path="src/Modules/Tenants/Tenants.Infrastructure/Tenants.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Workers/">
+    <Project Path="src/Workers/NotificationPlatform.DeliveryWorker/NotificationPlatform.DeliveryWorker.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NotificationPlatform.ArchitectureTests/NotificationPlatform.ArchitectureTests.csproj" />
+    <Project Path="tests/NotificationPlatform.IntegrationTests/NotificationPlatform.IntegrationTests.csproj" />
+    <Project Path="tests/NotificationPlatform.UnitTests/NotificationPlatform.UnitTests.csproj" />
+  </Folder>
+</Solution>
