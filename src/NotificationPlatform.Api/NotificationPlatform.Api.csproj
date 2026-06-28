@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Modules\Tenants\Tenants.Api\Tenants.Api.csproj" />
+    <ProjectReference Include="..\Modules\Tenants\Tenants.Application\Tenants.Application.csproj" />
     <ProjectReference Include="..\Modules\Tenants\Tenants.Infrastructure\Tenants.Infrastructure.csproj" />
     <ProjectReference Include="..\BuildingBlocks\BuildingBlocks.Infrastructure\BuildingBlocks.Infrastructure.csproj" />
   </ItemGroup>
