@@ -1,10 +1,10 @@
-﻿using BuildingBlocks.Application;
-using MediatR;
+﻿using MediatR;
+using Tenants.Application;
 using Tenants.Domain;
 
 namespace Tenants.Infrastructure.Persistence;
 
-public sealed class UnitOfWork : IUnitOfWork
+public sealed class UnitOfWork : ITenantsUnitOfWork
 {
     private readonly TenantsDbContext _context;
     private readonly IPublisher _publisher;
