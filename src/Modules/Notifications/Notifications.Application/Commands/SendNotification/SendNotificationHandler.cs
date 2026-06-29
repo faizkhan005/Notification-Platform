@@ -8,12 +8,12 @@ public sealed class SendNotificationHandler
     : ICommandHandler<SendNotificationCommand, SendNotificationResponse>
 {
     private readonly INotificationRepository _repository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly INotificationsUnitOfWork _unitOfWork;
     private readonly ITenantRepository _tenantRepository;
 
     public SendNotificationHandler(
         INotificationRepository repository,
-        IUnitOfWork unitOfWork,
+        INotificationsUnitOfWork unitOfWork,
         ITenantRepository tenantRepository)
     {
         _repository = repository;
