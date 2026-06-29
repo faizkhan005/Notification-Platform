@@ -1,10 +1,10 @@
-﻿using BuildingBlocks.Application;
-using MediatR;
+﻿using MediatR;
+using Notifications.Application;
 using Notifications.Domain;
 
 namespace Notifications.Infrastructure.Persistence;
 
-public sealed class UnitOfWork : IUnitOfWork
+public sealed class UnitOfWork : INotificationsUnitOfWork
 {
     private readonly NotificationsDbContext _context;
     private readonly IPublisher _publisher;
