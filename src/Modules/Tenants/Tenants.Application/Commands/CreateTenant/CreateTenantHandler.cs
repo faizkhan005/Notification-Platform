@@ -8,9 +8,9 @@ public sealed class CreateTenantHandler
     : ICommandHandler<CreateTenantCommand, CreateTenantResponse>
 {
     private readonly ITenantRepository _repository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ITenantsUnitOfWork _unitOfWork;
 
-    public CreateTenantHandler(ITenantRepository repository, IUnitOfWork unitOfWork)
+    public CreateTenantHandler(ITenantRepository repository, ITenantsUnitOfWork unitOfWork)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;

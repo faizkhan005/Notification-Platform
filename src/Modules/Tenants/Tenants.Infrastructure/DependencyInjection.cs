@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Tenants.Application;
 using Tenants.Domain;
 using Tenants.Infrastructure.Persistence;
 
@@ -21,7 +22,7 @@ public static class DependencyInjection
         });
 
         services.AddScoped<ITenantRepository, TenantRepository>();
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<ITenantsUnitOfWork, UnitOfWork>();
 
         return services;
     }

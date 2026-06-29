@@ -1,7 +1,7 @@
-﻿using BuildingBlocks.Application;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Notifications.Application;
 using Notifications.Domain;
 using Notifications.Infrastructure.Persistence;
 
@@ -21,7 +21,7 @@ public static class DependencyInjection
         });
 
         services.AddScoped<INotificationRepository, NotificationRepository>();
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<INotificationsUnitOfWork, UnitOfWork>();
 
         return services;
     }
