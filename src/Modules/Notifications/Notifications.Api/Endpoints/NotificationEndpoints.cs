@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Notifications.Api.Contracts;
 using Notifications.Application.Commands.SendNotification;
+using Notifications.Application.Queries.GetNotificationById;
 
 namespace Notifications.Api.Endpoints;
 
@@ -48,9 +49,21 @@ public static class NotificationEndpoints
             new { id = response.NotificationId }, response);
     }
 
-    private static Task<IResult> GetNotificationById(Guid id)
+    private static async Task<IResult> GetNotificationById(
+     Guid id,
+     ISender sender,
+     CancellationToken cancellationToken)
     {
-        // Placeholder — query handler comes next session
-        return Task.FromResult(Results.Ok(new { id, message = "Query handler coming soon" }));
+        var query = new GetNotificationByIdQuery(id);
+        var response = await sender.Send(query, cancellationToken);
+
+        return response is null
+            ? Results.NotFound(new ProblemDetails
+            {
+                Title = "Notification not found",
+                Detail = $"No notification with id '{id}' exists.",
+                Status = StatusCodes.Status404NotFound
+            })
+            : Results.Ok(response);
     }
 }
