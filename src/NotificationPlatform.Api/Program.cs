@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using NotificationPlatform.Api.Infrastructure;
+using Notifications.Api;
+using Notifications.Application;
+using Notifications.Infrastructure;
 using Scalar.AspNetCore;
 using Tenants.Api;
 using Tenants.Application;
@@ -7,8 +10,13 @@ using Tenants.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//tenats
 builder.Services.AddTenantsApplication();
 builder.Services.AddTenantsInfrastructure(builder.Configuration);
+
+//Notification
+builder.Services.AddNotificationsApplication();
+builder.Services.AddNotificationsInfrastructure(builder.Configuration);
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
@@ -30,6 +38,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.MapTenantsApi();
+app.MapNotificationsApi();
 app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTimeOffset.UtcNow }))
     .WithTags("Health");
 
@@ -38,6 +47,9 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<Tenants.Infrastructure.Persistence.TenantsDbContext>();
     await db.Database.MigrateAsync();
+
+    var notificationsDb = scope.ServiceProvider.GetRequiredService<Notifications.Infrastructure.Persistence.NotificationsDbContext>();
+    await notificationsDb.Database.MigrateAsync();
 }
 
 app.Run();
