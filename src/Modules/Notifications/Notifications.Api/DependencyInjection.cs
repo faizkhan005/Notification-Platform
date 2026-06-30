@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Routing;
+using Notifications.Api.Endpoints;
 
-namespace Notifications.Api.Endpoints;
+namespace Notifications.Api;
 
 public static class DependencyInjection
 {

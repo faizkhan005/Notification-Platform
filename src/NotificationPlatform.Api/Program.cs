@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using NotificationPlatform.Api.Infrastructure;
-using Notifications.Api.Endpoints;
+using Notifications.Api;
 using Notifications.Application;
 using Notifications.Infrastructure;
 using Scalar.AspNetCore;
@@ -47,6 +47,9 @@ if (app.Environment.IsDevelopment())
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<Tenants.Infrastructure.Persistence.TenantsDbContext>();
     await db.Database.MigrateAsync();
+
+    var notificationsDb = scope.ServiceProvider.GetRequiredService<Notifications.Infrastructure.Persistence.NotificationsDbContext>();
+    await notificationsDb.Database.MigrateAsync();
 }
 
 app.Run();
