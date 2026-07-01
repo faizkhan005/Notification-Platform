@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Notifications.Domain.Exceptions;
 using Tenants.Domain.Exceptions;
 
 namespace NotificationPlatform.Api.Infrastructure;
@@ -45,6 +46,15 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                 }),
 
             TenantDomainException ex => (StatusCodes.Status400BadRequest,
+                new ProblemDetails
+                {
+                    Title = "Domain Rule Violation",
+                    Detail = ex.Message,
+                    Status = StatusCodes.Status400BadRequest,
+                    Instance = httpContext.Request.Path
+                }),
+
+            NotificationDomainException ex => (StatusCodes.Status400BadRequest,
                 new ProblemDetails
                 {
                     Title = "Domain Rule Violation",
