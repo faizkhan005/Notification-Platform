@@ -58,6 +58,13 @@ services:
     volumes:
       - seq_data:/data
 
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: notification_mailpit
+    ports:
+      - "1025:1025"  # SMTP port - app sends here
+      - "8025:8025"  # Web UI - view caught emails here
+
 volumes:
   postgres_data:
   redis_data:
