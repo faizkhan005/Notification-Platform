@@ -12,6 +12,9 @@ public sealed class OutboxMessageConfiguration : IEntityTypeConfiguration<Outbox
 
         builder.HasKey(m => m.Id);
 
+        builder.Property(m => m.Id)
+            .HasColumnName("id");
+
         builder.Property(m => m.Type)
             .HasColumnName("type")
             .HasMaxLength(500)
