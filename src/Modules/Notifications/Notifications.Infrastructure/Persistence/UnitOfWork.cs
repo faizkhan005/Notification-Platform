@@ -1,5 +1,6 @@
 ﻿using BuildingBlocks.Infrastructure.Outbox;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Notifications.Application;
 using Notifications.Domain;
 using System.Text.Json;
@@ -10,11 +11,13 @@ public sealed class UnitOfWork : INotificationsUnitOfWork
 {
     private readonly NotificationsDbContext _context;
     private readonly IPublisher _publisher;
+    private readonly ICorrelationIdProvider _correlationIdProvider;
 
-    public UnitOfWork(NotificationsDbContext context, IPublisher publisher)
+    public UnitOfWork(NotificationsDbContext context, IPublisher publisher, ICorrelationIdProvider correlationIdProvider)
     {
         _context = context;
         _publisher = publisher;
+        _correlationIdProvider = correlationIdProvider;
     }
 
     public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
@@ -23,6 +26,9 @@ public sealed class UnitOfWork : INotificationsUnitOfWork
             .Entries<Notification>()
             .SelectMany(e => e.Entity.DomainEvents)
             .ToList();
+
+        var correlationId = _correlationIdProvider.GetCorrelationId();
+
 
         // Write each domain event as an OutboxMessage row BEFORE SaveChanges.
         // This is the key moment: the outbox row is added to the SAME
@@ -34,7 +40,8 @@ public sealed class UnitOfWork : INotificationsUnitOfWork
         {
             var outboxMessage = OutboxMessage.Create(
                 type: domainEvent.GetType().AssemblyQualifiedName!,
-                content: JsonSerializer.Serialize(domainEvent, domainEvent.GetType()));
+                content: JsonSerializer.Serialize(domainEvent, domainEvent.GetType()),
+                correlationId: correlationId);
 
             _context.OutboxMessages.Add(outboxMessage);
         }

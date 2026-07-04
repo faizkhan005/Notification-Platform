@@ -38,6 +38,10 @@ public sealed class OutboxMessageConfiguration : IEntityTypeConfiguration<Outbox
             .HasColumnName("error")
             .HasMaxLength(2000);
 
+        builder.Property(m => m.CorrelationId)
+            .HasColumnName("correlation_id")
+            .HasMaxLength(100);
+
         builder.Property(m => m.RetryCount)
             .HasColumnName("retry_count")
             .IsRequired();

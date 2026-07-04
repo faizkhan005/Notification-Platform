@@ -5,5 +5,6 @@ public sealed record NotificationCreatedIntegrationEvent(
     Guid TenantId,
     string Channel,
     string RecipientAddress,
-    DateTimeOffset OccurredAt
+    DateTimeOffset OccurredAt,
+    string? CorrelationId
 );

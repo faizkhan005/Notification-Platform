@@ -88,7 +88,8 @@ public sealed class OutboxProcessor : BackgroundService
                         notificationCreated.TenantId,
                         notificationCreated.Channel,
                         notificationCreated.RecipientAddress,
-                        notificationCreated.OccurredAt), cancellationToken);
+                        notificationCreated.OccurredAt,
+                        message.CorrelationId), cancellationToken);
                 }
 
                 message.MarkAsProcessed();
