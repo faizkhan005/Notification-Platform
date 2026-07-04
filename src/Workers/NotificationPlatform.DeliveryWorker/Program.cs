@@ -19,7 +19,9 @@ builder.Services.AddDbContext<NotificationsDbContext>(options =>
 builder.Services.AddScoped<INotificationRepository, NotificationRepository>();
 builder.Services.AddScoped<INotificationsUnitOfWork, UnitOfWork>();
 
-builder.Services.AddScoped<IEmailSender, MailKitEmailSender>();
+builder.Services.AddSingleton<MailKitEmailSender>();
+builder.Services.AddSingleton<IEmailSender>(sp =>
+    new ResilientEmailSender(sp.GetRequiredService<MailKitEmailSender>(), sp.GetRequiredService<ILogger<ResilientEmailSender>>()));
 
 // MassTransit — CONSUMING side. AddConsumer registers the consumer class;
 // UsingRabbitMq configures the transport and tells MassTransit to
