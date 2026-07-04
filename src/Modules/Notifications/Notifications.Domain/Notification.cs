@@ -105,4 +105,25 @@ public sealed class Notification
     }
 
     public bool CanRetry(int maxRetries = 3) => RetryCount < maxRetries;
+
+
+    public void ResetForReplay()
+    {
+        if (Status != NotificationStatus.Failed)
+            throw new NotificationDomainException(
+                $"Cannot replay notification with status {Status}. Only Failed notifications can be replayed.");
+
+        Status = NotificationStatus.Pending;
+        FailureReason = null;
+        UpdatedAt = DateTimeOffset.UtcNow;
+
+        _domainEvents.Add(new NotificationCreated
+        {
+            NotificationId = Id,
+            TenantId = TenantId.Value,
+            Channel = Channel.ToString(),
+            RecipientAddress = Recipient.Address,
+            OccurredAt = UpdatedAt
+        });
+    }
 }
