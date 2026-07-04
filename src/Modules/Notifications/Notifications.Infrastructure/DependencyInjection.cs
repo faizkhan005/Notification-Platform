@@ -6,6 +6,7 @@ using Notifications.Application;
 using Notifications.Domain;
 using Notifications.Infrastructure.Outbox;
 using Notifications.Infrastructure.Persistence;
+using Notifications.Infrastructure.Reconciliation;
 
 namespace Notifications.Infrastructure;
 
@@ -44,6 +45,7 @@ public static class DependencyInjection
         // Background service that polls the outbox table and publishes
         // messages to RabbitMQ via the MassTransit bus configured above.
         services.AddHostedService<OutboxProcessor>();
+        services.AddHostedService<StuckNotificationReconciler>();
 
         return services;
     }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Notifications.Api.Contracts;
+using Notifications.Application.Commands.ReplayNotification;
 using Notifications.Application.Commands.SendNotification;
 using Notifications.Application.Queries.GetNotificationById;
 
@@ -24,6 +25,12 @@ public static class NotificationEndpoints
         group.MapGet("/{id:guid}", GetNotificationById)
             .WithName("GetNotificationById")
             .Produces<SendNotificationResponse>(StatusCodes.Status200OK)
+            .Produces<ProblemDetails>(StatusCodes.Status404NotFound);
+
+        group.MapPost("/{id:guid}/replay", ReplayNotification)
+            .WithName("ReplayNotification")
+            .Produces<ReplayNotificationResponse>(StatusCodes.Status202Accepted)
+            .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
             .Produces<ProblemDetails>(StatusCodes.Status404NotFound);
 
         return app;
@@ -65,5 +72,15 @@ public static class NotificationEndpoints
                 Status = StatusCodes.Status404NotFound
             })
             : Results.Ok(response);
+    }
+
+    private static async Task<IResult> ReplayNotification(
+     Guid id,
+     ISender sender,
+     CancellationToken cancellationToken)
+    {
+        var command = new ReplayNotificationCommand(id);
+        var response = await sender.Send(command, cancellationToken);
+        return Results.Accepted(value: response);
     }
 }
