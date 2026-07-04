@@ -63,6 +63,15 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                     Instance = httpContext.Request.Path
                 }),
 
+            Templates.Domain.Exceptions.TemplateDomainException ex => (StatusCodes.Status400BadRequest,
+                new ProblemDetails
+                {
+                    Title = "Domain Rule Violation",
+                    Detail = ex.Message,
+                    Status = StatusCodes.Status400BadRequest,
+                    Instance = httpContext.Request.Path
+                }),
+
             _ => (StatusCodes.Status500InternalServerError,
                 new ProblemDetails
                 {

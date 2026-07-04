@@ -4,11 +4,13 @@ using Notifications.Api;
 using Notifications.Application;
 using Notifications.Infrastructure;
 using Scalar.AspNetCore;
+using Serilog;
+using Templates.Api;
+using Templates.Application;
+using Templates.Infrastructure;
 using Tenants.Api;
 using Tenants.Application;
 using Tenants.Infrastructure;
-
-using Serilog;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
@@ -32,6 +34,10 @@ try
     //Notification
     builder.Services.AddNotificationsApplication();
     builder.Services.AddNotificationsInfrastructure(builder.Configuration);
+
+    //Templates
+    builder.Services.AddTemplatesApplication();
+    builder.Services.AddTemplatesInfrastructure(builder.Configuration);
 
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
     builder.Services.AddProblemDetails();
@@ -59,6 +65,7 @@ try
     app.UseHttpsRedirection();
     app.MapTenantsApi();
     app.MapNotificationsApi();
+    app.MapTemplatesApi();
     app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTimeOffset.UtcNow }))
         .WithTags("Health");
 
@@ -70,6 +77,9 @@ try
 
         var notificationsDb = scope.ServiceProvider.GetRequiredService<Notifications.Infrastructure.Persistence.NotificationsDbContext>();
         await notificationsDb.Database.MigrateAsync();
+
+        var templatesDb = scope.ServiceProvider.GetRequiredService<Templates.Infrastructure.Persistence.TemplatesDbContext>();
+        await templatesDb.Database.MigrateAsync();
     }
 
     app.Run();
