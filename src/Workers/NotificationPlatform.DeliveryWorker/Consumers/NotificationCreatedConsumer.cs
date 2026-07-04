@@ -21,67 +21,78 @@ public sealed class NotificationCreatedConsumer : IConsumer<NotificationCreatedI
     private readonly INotificationsUnitOfWork _unitOfWork;
     private readonly IEmailSender _emailSender;
     private readonly ILogger<NotificationCreatedConsumer> _logger;
+    private readonly CurrentMessageContext _currentMessageContext;
 
     public NotificationCreatedConsumer(
         INotificationRepository repository,
-        Notifications.Application.INotificationsUnitOfWork unitOfWork,
+        INotificationsUnitOfWork unitOfWork,
         IEmailSender emailSender,
-        ILogger<NotificationCreatedConsumer> logger)
+        ILogger<NotificationCreatedConsumer> logger,
+        CurrentMessageContext currentMessageContext)
     {
         _repository = repository;
         _unitOfWork = unitOfWork;
         _emailSender = emailSender;
         _logger = logger;
+        _currentMessageContext = currentMessageContext;
     }
 
     public async Task Consume(ConsumeContext<NotificationCreatedIntegrationEvent> context)
     {
         var message = context.Message;
-        var notificationId = NotificationId.From(message.NotificationId);
 
-        var notification = await _repository.GetByIdAsync(notificationId, context.CancellationToken);
+        // Populate the ambient context FIRST, before anything else runs,
+        // so UnitOfWork (if invoked later in this scope) can read it.
+        _currentMessageContext.CorrelationId = message.CorrelationId;
 
-        if (notification is null)
+        using (Serilog.Context.LogContext.PushProperty("CorrelationId", message.CorrelationId ?? "none")) 
         {
-            _logger.LogWarning("Notification {NotificationId} not found — skipping delivery.", message.NotificationId);
-            return;
-        }
+            var notificationId = NotificationId.From(message.NotificationId);
 
-        notification.MarkAsProcessing();
-        await _unitOfWork.SaveChangesAsync(context.CancellationToken);
+            var notification = await _repository.GetByIdAsync(notificationId, context.CancellationToken);
 
-        try
-        {
-            // Only Email is implemented right now — other channels get added
-            // as their own case here, each with their own provider.
-            switch (notification.Channel)
+            if (notification is null)
             {
-                case NotificationChannel.Email:
-                    await _emailSender.SendAsync(
-                        notification.Recipient.Address,
-                        notification.Content.Subject,
-                        notification.Content.Body,
-                        context.CancellationToken);
-                    break;
-
-                default:
-                    throw new NotSupportedException(
-                        $"Channel {notification.Channel} is not yet implemented.");
+                _logger.LogWarning("Notification {NotificationId} not found — skipping delivery.", message.NotificationId);
+                return;
             }
 
-            notification.MarkAsDelivered();
-            _logger.LogInformation("Notification {NotificationId} delivered successfully.", message.NotificationId);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to deliver notification {NotificationId}.", message.NotificationId);
-            notification.MarkAsFailed(ex.Message);
+            notification.MarkAsProcessing();
             await _unitOfWork.SaveChangesAsync(context.CancellationToken);
-            // Rethrow so MassTransit knows this message failed. This triggers
-            // MassTransit's own message-level retry (configured below), and
-            // eventually routes the message to the automatic error queue if
-            // all retries are exhausted — that's our dead letter queue.
-            throw;
+
+            try
+            {
+                // Only Email is implemented right now — other channels get added
+                // as their own case here, each with their own provider.
+                switch (notification.Channel)
+                {
+                    case NotificationChannel.Email:
+                        await _emailSender.SendAsync(
+                            notification.Recipient.Address,
+                            notification.Content.Subject,
+                            notification.Content.Body,
+                            context.CancellationToken);
+                        break;
+
+                    default:
+                        throw new NotSupportedException(
+                            $"Channel {notification.Channel} is not yet implemented.");
+                }
+
+                notification.MarkAsDelivered();
+                _logger.LogInformation("Notification {NotificationId} delivered successfully.", message.NotificationId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to deliver notification {NotificationId}.", message.NotificationId);
+                notification.MarkAsFailed(ex.Message);
+                await _unitOfWork.SaveChangesAsync(context.CancellationToken);
+                // Rethrow so MassTransit knows this message failed. This triggers
+                // MassTransit's own message-level retry (configured below), and
+                // eventually routes the message to the automatic error queue if
+                // all retries are exhausted — that's our dead letter queue.
+                throw;
+            }
         }
     }
 }

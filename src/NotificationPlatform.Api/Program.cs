@@ -37,9 +37,14 @@ try
     builder.Services.AddProblemDetails();
     builder.Services.AddOpenApi();
 
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddScoped<ICorrelationIdProvider, HttpContextCorrelationIdProvider>();
+
     var app = builder.Build();
 
     app.UseExceptionHandler();
+
+    app.UseMiddleware<CorrelationIdMiddleware>();
 
     if (app.Environment.IsDevelopment())
     {

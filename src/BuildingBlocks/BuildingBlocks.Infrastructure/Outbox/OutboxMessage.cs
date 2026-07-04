@@ -5,18 +5,20 @@ public sealed class OutboxMessage
     public Guid Id { get; private set; }
     public string Type { get; private set; } = null!;
     public string Content { get; private set; } = null!;
+    public string? CorrelationId { get; private set; }
     public DateTimeOffset OccurredAt { get; private set; }
     public DateTimeOffset? ProcessedAt { get; private set; }
     public string? Error { get; private set; }
     public int RetryCount { get; private set; }
 
-    public static OutboxMessage Create(string type, string content)
+    public static OutboxMessage Create(string type, string content, string? correlationId = null)
     {
         return new OutboxMessage
         {
             Id = Guid.NewGuid(),
             Type = type,
             Content = content,
+            CorrelationId = correlationId,
             OccurredAt = DateTimeOffset.UtcNow,
             RetryCount = 0
         };

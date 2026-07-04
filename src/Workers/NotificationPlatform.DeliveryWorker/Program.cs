@@ -1,12 +1,24 @@
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using NotificationPlatform.DeliveryWorker;
 using NotificationPlatform.DeliveryWorker.Consumers;
 using NotificationPlatform.DeliveryWorker.Providers;
 using Notifications.Application;
 using Notifications.Domain;
 using Notifications.Infrastructure.Persistence;
+using Serilog;
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Information()
+    .Enrich.FromLogContext()
+    .WriteTo.Console(outputTemplate:
+        "[{Timestamp:HH:mm:ss} {Level:u3}] {SourceContext}{NewLine}{Message:lj} {Properties:j}{NewLine}{Exception}")
+    .WriteTo.Seq("http://localhost:5341")
+    .CreateLogger();
 
 var builder = Host.CreateApplicationBuilder(args);
+
+builder.Services.AddSerilog();
 
 // Database access — same NotificationsDbContext as the API, pointing at
 // the same Postgres database. The Worker updates notification status
@@ -22,6 +34,8 @@ builder.Services.AddScoped<INotificationsUnitOfWork, UnitOfWork>();
 builder.Services.AddSingleton<MailKitEmailSender>();
 builder.Services.AddSingleton<IEmailSender>(sp =>
     new ResilientEmailSender(sp.GetRequiredService<MailKitEmailSender>(), sp.GetRequiredService<ILogger<ResilientEmailSender>>()));
+builder.Services.AddScoped<CurrentMessageContext>();
+builder.Services.AddScoped<ICorrelationIdProvider,ConsumeContextCorrelationIdProvider>();
 
 // MassTransit — CONSUMING side. AddConsumer registers the consumer class;
 // UsingRabbitMq configures the transport and tells MassTransit to
