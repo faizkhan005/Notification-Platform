@@ -76,8 +76,12 @@ public sealed class NotificationCreatedConsumer : IConsumer<NotificationCreatedI
         {
             _logger.LogError(ex, "Failed to deliver notification {NotificationId}.", message.NotificationId);
             notification.MarkAsFailed(ex.Message);
+            await _unitOfWork.SaveChangesAsync(context.CancellationToken);
+            // Rethrow so MassTransit knows this message failed. This triggers
+            // MassTransit's own message-level retry (configured below), and
+            // eventually routes the message to the automatic error queue if
+            // all retries are exhausted — that's our dead letter queue.
+            throw;
         }
-
-        await _unitOfWork.SaveChangesAsync(context.CancellationToken);
     }
 }

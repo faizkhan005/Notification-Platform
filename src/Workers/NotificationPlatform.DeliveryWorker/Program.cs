@@ -41,6 +41,18 @@ builder.Services.AddMassTransit(x =>
         // ConfigureEndpoints automatically creates a queue named after the
         // consumer and binds it to the message type's exchange.
         cfg.ConfigureEndpoints(context);
+
+        // Message-level retry: if the consumer throws, MassTransit redelivers
+        // the message up to 3 times with delay between attempts. This is
+        // SEPARATE from Polly's retry inside ResilientEmailSender — this operates
+        // at the message/queue level, Polly operates at the individual network call level.
+        // Together: Polly handles "the SMTP call failed, try again quickly,"
+        // MassTransit handles "the whole consume operation failed, redeliver
+        // the message later and try the entire thing again."
+        cfg.UseMessageRetry(r => r.Intervals(
+            TimeSpan.FromSeconds(5),
+            TimeSpan.FromSeconds(15),
+            TimeSpan.FromSeconds(30)));
     });
 });
 
