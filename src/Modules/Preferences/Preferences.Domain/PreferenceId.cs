@@ -1,0 +1,8 @@
+﻿namespace Preferences.Domain;
+
+public readonly record struct PreferenceId(Guid Value)
+{
+    public static PreferenceId New() => new(Guid.NewGuid());
+    public static PreferenceId From(Guid value) => new(value);
+    public override string ToString() => $"PreferenceId({Value})";
+}
