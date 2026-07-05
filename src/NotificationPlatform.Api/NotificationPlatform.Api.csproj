@@ -30,6 +30,8 @@
     <ProjectReference Include="..\Modules\Notifications\Notifications.Api\Notifications.Api.csproj" />
     <ProjectReference Include="..\Modules\Templates\Templates.Api\Templates.Api.csproj" />
     <ProjectReference Include="..\Modules\Templates\Templates.Infrastructure\Templates.Infrastructure.csproj" />
+    <ProjectReference Include="..\Modules\Preferences\Preferences.Api\Preferences.Api.csproj" />
+    <ProjectReference Include="..\Modules\Preferences\Preferences.Infrastructure\Preferences.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
