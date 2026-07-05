@@ -19,11 +19,9 @@ public sealed class SendNotificationValidator : AbstractValidator<SendNotificati
             .NotEmpty().WithMessage("Recipient address is required.")
             .MaximumLength(320).WithMessage("Recipient address cannot exceed 320 characters.");
 
-        RuleFor(x => x.Subject)
-            .NotEmpty().WithMessage("Subject is required.")
-            .MaximumLength(500).WithMessage("Subject cannot exceed 500 characters.");
-
-        RuleFor(x => x.Body)
-            .NotEmpty().WithMessage("Body is required.");
+        // Exactly one of (Subject+Body) or (TemplateId) must be provided — not both, not neither.
+        RuleFor(x => x)
+            .Must(x => (x.TemplateId.HasValue) ^ (!string.IsNullOrWhiteSpace(x.Subject) && !string.IsNullOrWhiteSpace(x.Body)))
+            .WithMessage("Provide either TemplateId (with TemplateVariables) OR both Subject and Body, not both modes at once.");
     }
 }

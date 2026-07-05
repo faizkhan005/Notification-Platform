@@ -47,7 +47,9 @@ public static class NotificationEndpoints
             request.RecipientAddress,
             request.RecipientName,
             request.Subject,
-            request.Body);
+            request.Body,
+            request.TemplateId,
+            request.TemplateVariables);
 
         var response = await sender.Send(command, cancellationToken);
 

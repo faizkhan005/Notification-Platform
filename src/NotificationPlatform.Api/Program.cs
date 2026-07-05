@@ -3,6 +3,9 @@ using NotificationPlatform.Api.Infrastructure;
 using Notifications.Api;
 using Notifications.Application;
 using Notifications.Infrastructure;
+using Preferences.Api;
+using Preferences.Application;
+using Preferences.Infrastructure;
 using Scalar.AspNetCore;
 using Serilog;
 using Templates.Api;
@@ -39,6 +42,10 @@ try
     builder.Services.AddTemplatesApplication();
     builder.Services.AddTemplatesInfrastructure(builder.Configuration);
 
+    //Preferences
+    builder.Services.AddPreferencesApplication();
+    builder.Services.AddPreferencesInfrastructure(builder.Configuration);
+
     builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
     builder.Services.AddProblemDetails();
     builder.Services.AddOpenApi();
@@ -66,6 +73,7 @@ try
     app.MapTenantsApi();
     app.MapNotificationsApi();
     app.MapTemplatesApi();
+    app.MapPreferencesApi();
     app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTimeOffset.UtcNow }))
         .WithTags("Health");
 
@@ -80,6 +88,9 @@ try
 
         var templatesDb = scope.ServiceProvider.GetRequiredService<Templates.Infrastructure.Persistence.TemplatesDbContext>();
         await templatesDb.Database.MigrateAsync();
+
+        var preferencesDb = scope.ServiceProvider.GetRequiredService<Preferences.Infrastructure.Persistence.PreferencesDbContext>();
+        await preferencesDb.Database.MigrateAsync();
     }
 
     app.Run();

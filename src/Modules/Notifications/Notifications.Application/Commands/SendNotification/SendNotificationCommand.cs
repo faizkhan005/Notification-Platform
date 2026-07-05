@@ -8,5 +8,7 @@ public sealed record SendNotificationCommand(
     string RecipientAddress,
     string? RecipientName,
     string Subject,
-    string Body
+    string Body,
+    Guid? TemplateId,
+    Dictionary<string, string>? TemplateVariables
 ) : ICommand<SendNotificationResponse>;
