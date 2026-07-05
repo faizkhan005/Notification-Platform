@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Notifications.Domain.Exceptions;
+using Preferences.Domain.Exceptions;
+using Templates.Domain.Exceptions;
 using Tenants.Domain.Exceptions;
 
 namespace NotificationPlatform.Api.Infrastructure;
@@ -63,7 +65,16 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
                     Instance = httpContext.Request.Path
                 }),
 
-            Templates.Domain.Exceptions.TemplateDomainException ex => (StatusCodes.Status400BadRequest,
+            TemplateDomainException ex => (StatusCodes.Status400BadRequest,
+                new ProblemDetails
+                {
+                    Title = "Domain Rule Violation",
+                    Detail = ex.Message,
+                    Status = StatusCodes.Status400BadRequest,
+                    Instance = httpContext.Request.Path
+                }),
+
+            PreferenceDomainException ex => (StatusCodes.Status400BadRequest,
                 new ProblemDetails
                 {
                     Title = "Domain Rule Violation",
