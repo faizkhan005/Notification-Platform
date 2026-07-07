@@ -16,6 +16,7 @@ public static class DependencyInjection
         {
             cfg.RegisterServicesFromAssembly(assembly);
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
+            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(IdempotencyPipelineBehavior<,>));
         });
 
         services.AddValidatorsFromAssembly(assembly, ServiceLifetime.Transient);
