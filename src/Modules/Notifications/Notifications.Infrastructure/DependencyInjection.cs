@@ -1,12 +1,15 @@
-﻿using MassTransit;
+﻿using BuildingBlocks.Application;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Notifications.Application;
 using Notifications.Domain;
+using Notifications.Infrastructure.Idempotency;
 using Notifications.Infrastructure.Outbox;
 using Notifications.Infrastructure.Persistence;
 using Notifications.Infrastructure.Reconciliation;
+using StackExchange.Redis;
 
 namespace Notifications.Infrastructure;
 
@@ -41,6 +44,12 @@ public static class DependencyInjection
                 });
             });
         });
+
+        //Reddis 
+        services.AddSingleton<IConnectionMultiplexer>(sp =>
+            ConnectionMultiplexer.Connect(configuration["Redis:ConnectionString"] ?? "localhost:6379"));
+
+        services.AddScoped<IIdempotencyStore, RedisIdempotencyStore>();
 
         // Background service that polls the outbox table and publishes
         // messages to RabbitMQ via the MassTransit bus configured above.
